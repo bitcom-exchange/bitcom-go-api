@@ -27,8 +27,8 @@ func main() {
 	//examples.ConfigCodExample()
 	//examples.GetCodConfigExample()
 	//examples.GetMmpStateExample()
-	examples.UpdateMmpConfigExample()
-	//examples.ResetMmpStateExample()
+	//examples.UpdateMmpConfigExample()
+	examples.ResetMmpStateExample()
 
 	// order client
 	//examples.PlaceNewOrderExample()

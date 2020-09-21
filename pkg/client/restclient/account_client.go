@@ -246,14 +246,18 @@ func (c *AccountClient) UpdateMmpConfig(paramMap map[string]interface{}) (*accou
 	if postErr != nil {
 		return nil, postErr
 	}
-	result := &account.UpdateMmpResponse{}
-
-	jsonErr := json.Unmarshal([]byte(postResp), result)
+	baseResult := &base.RestBaseResponse{}
+	jsonErr := json.Unmarshal([]byte(postResp), baseResult)
 	if jsonErr != nil {
 		return nil, jsonErr
 	}
 
-	if result.Code == 0 {
+	if baseResult.Code == 0 {
+		result := &account.UpdateMmpResponse{}
+		jsonErr := json.Unmarshal([]byte(postResp), result)
+		if jsonErr != nil {
+			return nil, jsonErr
+		}
 		return result, nil
 	}
 
@@ -265,7 +269,7 @@ func (c *AccountClient) ResetMmpState(paramMap map[string]interface{}) (*account
 		paramMap = make(map[string]interface{})
 	}
 
-	url, postBody, err := c.privateUrlBuilder.BuildWithBody(constant.V1UpdateMmpConfigUrl, paramMap)
+	url, postBody, err := c.privateUrlBuilder.BuildWithBody(constant.V1ResetMmpStateUrl, paramMap)
 	if err != nil {
 		return nil, err
 	}
@@ -274,14 +278,18 @@ func (c *AccountClient) ResetMmpState(paramMap map[string]interface{}) (*account
 	if postErr != nil {
 		return nil, postErr
 	}
-	result := &account.ResetMmpStateResponse{}
-
-	jsonErr := json.Unmarshal([]byte(postResp), result)
+	baseResult := &base.RestBaseResponse{}
+	jsonErr := json.Unmarshal([]byte(postResp), baseResult)
 	if jsonErr != nil {
 		return nil, jsonErr
 	}
 
-	if result.Code == 0 {
+	if baseResult.Code == 0 {
+		result := &account.ResetMmpStateResponse{}
+		jsonErr := json.Unmarshal([]byte(postResp), result)
+		if jsonErr != nil {
+			return nil, jsonErr
+		}
 		return result, nil
 	}
 
