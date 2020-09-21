@@ -15,7 +15,7 @@ func PlaceNewOrderExample() {
 	paramMap["instrument_id"] = "BTC-PERPETUAL"
 	paramMap["qty"] = "1000"
 	paramMap["side"] = "sell"
-	paramMap["price"] = "10876.00"
+	paramMap["price"] = "10997.00"
 	paramMap["order_type"] = "limit"
 
 	resp, err := orderClient.NewOrder(paramMap)
@@ -259,45 +259,6 @@ func GetEstMarginsExample() {
 			applogger.Error("Marshal response error: %s", jsonErr)
 		} else {
 			applogger.Info("Get estimated margins: \n%s", pretty.Pretty([]byte(respJson)))
-		}
-	}
-}
-
-func GetCodConfigExample() {
-	orderClient := new(restclient.OrderClient).Init(config.User1Host, config.User1AccessKey, config.User1SecretKey)
-
-	paramMap := make(map[string]interface{})
-	paramMap["currency"] = "BTC"
-
-	resp, err := orderClient.GetCodConfig(paramMap)
-	if err != nil {
-		applogger.Error("Get cod config error: %s", err)
-	} else {
-		respJson, jsonErr := model.ToJson(resp.Data)
-		if jsonErr != nil {
-			applogger.Error("Marshal response error: %s", jsonErr)
-		} else {
-			applogger.Info("Get cod config: \n%s", pretty.Pretty([]byte(respJson)))
-		}
-	}
-}
-
-func ConfigCodExample() {
-	orderClient := new(restclient.OrderClient).Init(config.User1Host, config.User1AccessKey, config.User1SecretKey)
-
-	paramMap := make(map[string]interface{})
-	paramMap["currency"] = "BTC"
-	paramMap["cod"] = true
-
-	resp, err := orderClient.ConfigCod(paramMap)
-	if err != nil {
-		applogger.Error("Get cod config error: %s", err)
-	} else {
-		respJson, jsonErr := model.ToJson(resp.Data)
-		if jsonErr != nil {
-			applogger.Error("Marshal response error: %s", jsonErr)
-		} else {
-			applogger.Info("Get cod config: \n%s", pretty.Pretty([]byte(respJson)))
 		}
 	}
 }

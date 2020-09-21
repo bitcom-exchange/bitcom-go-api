@@ -106,3 +106,103 @@ func GetUserSettlementsExample() {
 		}
 	}
 }
+
+func GetCodConfigExample() {
+	accountClient := new(restclient.AccountClient).Init(config.User1Host, config.User1AccessKey, config.User1SecretKey)
+
+	paramMap := make(map[string]interface{})
+	paramMap["currency"] = "BTC"
+
+	resp, err := accountClient.GetCodConfig(paramMap)
+	if err != nil {
+		applogger.Error("Get cod config error: %s", err)
+	} else {
+		respJson, jsonErr := model.ToJson(resp.Data)
+		if jsonErr != nil {
+			applogger.Error("Marshal response error: %s", jsonErr)
+		} else {
+			applogger.Info("Get cod config: \n%s", pretty.Pretty([]byte(respJson)))
+		}
+	}
+}
+
+func ConfigCodExample() {
+	accountClient := new(restclient.AccountClient).Init(config.User1Host, config.User1AccessKey, config.User1SecretKey)
+
+	paramMap := make(map[string]interface{})
+	paramMap["currency"] = "BTC"
+	paramMap["cod"] = true
+
+	resp, err := accountClient.ConfigCod(paramMap)
+	if err != nil {
+		applogger.Error("Get cod config error: %s", err)
+	} else {
+		respJson, jsonErr := model.ToJson(resp.Data)
+		if jsonErr != nil {
+			applogger.Error("Marshal response error: %s", jsonErr)
+		} else {
+			applogger.Info("Get cod config: \n%s", pretty.Pretty([]byte(respJson)))
+		}
+	}
+}
+
+func GetMmpStateExample() {
+	accountClient := new(restclient.AccountClient).Init(config.User1Host, config.User1AccessKey, config.User1SecretKey)
+
+	paramMap := make(map[string]interface{})
+	paramMap["currency"] = "BTC"
+
+	resp, err := accountClient.GetMmpState(paramMap)
+	if err != nil {
+		applogger.Error("Get mmp state error: %s", err)
+	} else {
+		respJson, jsonErr := model.ToJson(resp.Data)
+		if jsonErr != nil {
+			applogger.Error("Marshal response error: %s", jsonErr)
+		} else {
+			applogger.Info("Get mmp state: \n%s", pretty.Pretty([]byte(respJson)))
+		}
+	}
+}
+
+func UpdateMmpConfigExample() {
+	accountClient := new(restclient.AccountClient).Init(config.User1Host, config.User1AccessKey, config.User1SecretKey)
+
+	paramMap := make(map[string]interface{})
+	paramMap["currency"] = "BTC"
+	paramMap["window_ms"] = 20000
+	paramMap["frozen_period_ms"] = 30000
+	paramMap["qty_limit"] = "1000.00000000"
+	paramMap["delta_limit"] = "1000.00000000"
+
+	resp, err := accountClient.UpdateMmpConfig(paramMap)
+	if err != nil {
+		applogger.Error("Update mmp config error: %s", err)
+	} else {
+		respJson, jsonErr := model.ToJson(resp.Data)
+		if jsonErr != nil {
+			applogger.Error("Marshal response error: %s", jsonErr)
+		} else {
+			applogger.Info("Update mmp config: \n%s", pretty.Pretty([]byte(respJson)))
+		}
+	}
+}
+
+func ResetMmpStateExample() {
+	accountClient := new(restclient.AccountClient).Init(config.User1Host, config.User1AccessKey, config.User1SecretKey)
+
+	paramMap := make(map[string]interface{})
+	paramMap["currency"] = "BTC"
+
+	resp, err := accountClient.ResetMmpState(paramMap)
+	if err != nil {
+		applogger.Error("Reset mmp state error: %s", err)
+	} else {
+		respJson, jsonErr := model.ToJson(resp.Data)
+		if jsonErr != nil {
+			applogger.Error("Marshal response error: %s", jsonErr)
+		} else {
+			applogger.Info("Reset mmp state: \n%s", pretty.Pretty([]byte(respJson)))
+		}
+	}
+}

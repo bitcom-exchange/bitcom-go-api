@@ -153,3 +153,137 @@ func (c *AccountClient) GetUserSettlements(paramMap map[string]interface{}) (*ac
 
 	return nil, errors.New(getResp)
 }
+
+func (c *AccountClient) GetCodConfig(paramMap map[string]interface{}) (*account.GetCodResponse, error) {
+	if paramMap == nil {
+		paramMap = make(map[string]interface{})
+	}
+
+	url := c.privateUrlBuilder.BuildWithURL(constant.V1GetCodConfigUrl, paramMap)
+
+	getResp, getErr := internal.HttpGet(url, c.privateUrlBuilder.GetAccessKey())
+	if getErr != nil {
+		return nil, getErr
+	}
+	result := &account.GetCodResponse{}
+
+	jsonErr := json.Unmarshal([]byte(getResp), result)
+	if jsonErr != nil {
+		return nil, jsonErr
+	}
+
+	if result.Code == 0 {
+		return result, nil
+	}
+
+	return nil, errors.New(getResp)
+}
+
+func (c *AccountClient) ConfigCod(paramMap map[string]interface{}) (*account.PostCodResponse, error) {
+	if paramMap == nil {
+		paramMap = make(map[string]interface{})
+	}
+
+	url, postBody, err := c.privateUrlBuilder.BuildWithBody(constant.V1ConfigCodUrl, paramMap)
+	if err != nil {
+		return nil, err
+	}
+
+	postResp, postErr := internal.HttpPost(url, postBody, c.privateUrlBuilder.GetAccessKey())
+	if postErr != nil {
+		return nil, postErr
+	}
+	result := &account.PostCodResponse{}
+
+	jsonErr := json.Unmarshal([]byte(postResp), result)
+	if jsonErr != nil {
+		return nil, jsonErr
+	}
+
+	if result.Code == 0 {
+		return result, nil
+	}
+
+	return nil, errors.New(postResp)
+}
+
+func (c *AccountClient) GetMmpState(paramMap map[string]interface{}) (*account.GetMmpResponse, error) {
+	if paramMap == nil {
+		paramMap = make(map[string]interface{})
+	}
+
+	url := c.privateUrlBuilder.BuildWithURL(constant.V1GetMmpStateUrl, paramMap)
+
+	getResp, getErr := internal.HttpGet(url, c.privateUrlBuilder.GetAccessKey())
+	if getErr != nil {
+		return nil, getErr
+	}
+	result := &account.GetMmpResponse{}
+
+	jsonErr := json.Unmarshal([]byte(getResp), result)
+	if jsonErr != nil {
+		return nil, jsonErr
+	}
+
+	if result.Code == 0 {
+		return result, nil
+	}
+
+	return nil, errors.New(getResp)
+}
+
+func (c *AccountClient) UpdateMmpConfig(paramMap map[string]interface{}) (*account.UpdateMmpResponse, error) {
+	if paramMap == nil {
+		paramMap = make(map[string]interface{})
+	}
+
+	url, postBody, err := c.privateUrlBuilder.BuildWithBody(constant.V1UpdateMmpConfigUrl, paramMap)
+	if err != nil {
+		return nil, err
+	}
+
+	postResp, postErr := internal.HttpPost(url, postBody, c.privateUrlBuilder.GetAccessKey())
+	if postErr != nil {
+		return nil, postErr
+	}
+	result := &account.UpdateMmpResponse{}
+
+	jsonErr := json.Unmarshal([]byte(postResp), result)
+	if jsonErr != nil {
+		return nil, jsonErr
+	}
+
+	if result.Code == 0 {
+		return result, nil
+	}
+
+	return nil, errors.New(postResp)
+}
+
+func (c *AccountClient) ResetMmpState(paramMap map[string]interface{}) (*account.ResetMmpStateResponse, error) {
+	if paramMap == nil {
+		paramMap = make(map[string]interface{})
+	}
+
+	url, postBody, err := c.privateUrlBuilder.BuildWithBody(constant.V1UpdateMmpConfigUrl, paramMap)
+	if err != nil {
+		return nil, err
+	}
+
+	postResp, postErr := internal.HttpPost(url, postBody, c.privateUrlBuilder.GetAccessKey())
+	if postErr != nil {
+		return nil, postErr
+	}
+	result := &account.ResetMmpStateResponse{}
+
+	jsonErr := json.Unmarshal([]byte(postResp), result)
+	if jsonErr != nil {
+		return nil, jsonErr
+	}
+
+	if result.Code == 0 {
+		return result, nil
+	}
+
+	return nil, errors.New(postResp)
+}

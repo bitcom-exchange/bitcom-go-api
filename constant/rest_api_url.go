@@ -22,6 +22,11 @@ const (
 	V1GetTransactionLogsUrl = "/v1/transactions"
 	V1GetUserDeliveriesUrl  = "/v1/user/deliveries"
 	V1GetUserSettlementsUrl = "/v1/user/settlements"
+	V1ConfigCodUrl          = "/v1/account_configs/cod"
+	V1GetCodConfigUrl       = "/v1/account_configs/cod"
+	V1GetMmpStateUrl        = "/v1/mmp_state"
+	V1UpdateMmpConfigUrl    = "/v1/update_mmp_config"
+	V1ResetMmpStateUrl      = "/v1/reset_mmp"
 
 	// Order
 	V1NewOrderUrl       = "/v1/orders"
@@ -33,8 +38,6 @@ const (
 	V1GetStopOrdersUrl  = "/v1/stop_orders"
 	V1GetUserTradesUrl  = "/v1/user/trades"
 	V1GetEstMarginsUrl  = "/v1/margins"
-	V1ConfigCodUrl      = "/v1/account_configs/cod"
-	V1GetCodConfigUrl   = "/v1/account_configs/cod"
 
 	// Batch Orders
 	V1NewBatchOrdersUrl   = "/v1/batchorders"

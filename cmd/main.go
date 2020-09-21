@@ -24,6 +24,11 @@ func main() {
 	//examples.GetTransactionLogsExample()
 	//examples.GetUserDeliveriesExample()
 	//examples.GetUserSettlementsExample()
+	//examples.ConfigCodExample()
+	//examples.GetCodConfigExample()
+	//examples.GetMmpStateExample()
+	examples.UpdateMmpConfigExample()
+	//examples.ResetMmpStateExample()
 
 	// order client
 	//examples.PlaceNewOrderExample()
@@ -37,8 +42,6 @@ func main() {
 	//examples.GetStopOrdersExample()
 	//examples.GetUserTradesExample()
 	//examples.GetEstMarginsExample()
-	//examples.ConfigCodExample()
-	//examples.GetCodConfigExample()
 
 	// Block Trade
 	//examples.NewParadigmBlockOrdersExample()
@@ -46,6 +49,6 @@ func main() {
 	//examples.QueryParadigmBlockOrdersByPlatformExample()
 
 	// WebSocket
-	examples.PublicSubscribeExample()
-	examples.PrivateSubscribeExample()
+	//examples.PublicSubscribeExample()
+	//examples.PrivateSubscribeExample()
 }

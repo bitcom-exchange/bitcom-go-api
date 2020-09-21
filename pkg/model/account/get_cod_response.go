@@ -1,4 +1,4 @@
-package order
+package account
 
 import "github.com/bitcom-exchange/bitcom-go-api/pkg/model/base"
 
