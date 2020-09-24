@@ -3,7 +3,7 @@ package constant
 const (
 	// Currency
 	BTC = "BTC"
-	ETH = "ETh"
+	ETH = "ETH"
 
 	// Instrument
 	BTCPerpetual = "BTC-PERPETUAL"
