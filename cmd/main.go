@@ -1,7 +1,5 @@
 package main
 
-import "github.com/bitcom-exchange/bitcom-go-api/cmd/examples"
-
 func main() {
 	// system client
 	//examples.GetSystemVersionExample()
@@ -28,7 +26,7 @@ func main() {
 	//examples.GetCodConfigExample()
 	//examples.GetMmpStateExample()
 	//examples.UpdateMmpConfigExample()
-	examples.ResetMmpStateExample()
+	//examples.ResetMmpStateExample()
 
 	// order client
 	//examples.PlaceNewOrderExample()
