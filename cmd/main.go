@@ -4,6 +4,7 @@ func main() {
 	// system client
 	//examples.GetSystemVersionExample()
 	//examples.GetSystemTimestampExample()
+	//examples.GetCancelOnlyStatusExample()
 
 	// market client
 	//examples.GetIndexExample()
@@ -15,6 +16,8 @@ func main() {
 	//examples.GetDeliveryInfoExample()
 	//examples.GetMarketSummaryExample()
 	//examples.GetFundingRateExample()
+	//examples.GetFundingRateHistoryExample()
+	//examples.GetTotalVolumeExample()
 
 	// account client
 	//examples.GetAccountsExample()

@@ -3,6 +3,7 @@ package restclient
 import (
 	"encoding/json"
 	"errors"
+
 	"github.com/bitcom-exchange/bitcom-go-api/constant"
 	"github.com/bitcom-exchange/bitcom-go-api/internal"
 	"github.com/bitcom-exchange/bitcom-go-api/internal/requestbuilder"
@@ -243,6 +244,55 @@ func (c *MarketClient) GetFundingRate(instrumentId string) (*market.GetFundingRa
 	getResp, getErr := internal.HttpGet(url, "")
 
 	result := &market.GetFundingRateResponse{}
+
+	if getErr != nil {
+		return nil, getErr
+	}
+
+	jsonErr := json.Unmarshal([]byte(getResp), result)
+	if jsonErr != nil {
+		return nil, jsonErr
+	}
+
+	if result.Code == 0 {
+		return result, nil
+	}
+
+	return nil, errors.New(getResp)
+}
+
+func (c *MarketClient) GetFundingRateHistory(paramMap map[string]interface{}) (*market.GetFundingRateHistoryResponse, error) {
+	if paramMap == nil {
+		paramMap = make(map[string]interface{})
+	}
+
+	url := c.publicUrlBuilder.Build(constant.V1GetFundingRateHistoryUrl, paramMap)
+	getResp, getErr := internal.HttpGet(url, "")
+
+	result := &market.GetFundingRateHistoryResponse{}
+
+	if getErr != nil {
+		return nil, getErr
+	}
+
+	jsonErr := json.Unmarshal([]byte(getResp), result)
+	if jsonErr != nil {
+		return nil, jsonErr
+	}
+
+	if result.Code == 0 {
+		return result, nil
+	}
+
+	return nil, errors.New(getResp)
+}
+
+func (c *MarketClient) GetTotalVolume() (*market.GetTotalVolumeResponse, error) {
+
+	url := c.publicUrlBuilder.Build(constant.V1GetTotalVolumeUrl, nil)
+	getResp, getErr := internal.HttpGet(url, "")
+
+	result := &market.GetTotalVolumeResponse{}
 
 	if getErr != nil {
 		return nil, getErr

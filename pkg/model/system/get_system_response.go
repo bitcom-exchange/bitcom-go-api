@@ -11,3 +11,13 @@ type GetSystemVersionResponse struct {
 	base.RestBaseResponse
 	Data string `json:"data"`
 }
+
+type GetCancelOnlyStatusResponse struct {
+	base.RestBaseResponse
+	Data CancelOnlyStatusVo `json:"data"`
+}
+
+type CancelOnlyStatusVo struct {
+	Status   int64 `json:"status"`
+	RemainMs int64 `json:"remain_ms"`
+}

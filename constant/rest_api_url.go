@@ -2,19 +2,22 @@ package constant
 
 const (
 	// System
-	V1GetServerTimestampUrl = "/v1/system/time"
-	V1GetSystemVersionUrl   = "/v1/system/version"
+	V1GetServerTimestampUrl  = "/v1/system/time"
+	V1GetSystemVersionUrl    = "/v1/system/version"
+	V1GetCancelOnlyStatusUrl = "/v1/system/cancel_only_status"
 
 	// Market
-	V1GetIndexUrl         = "/v1/index"
-	V1GetInstrumentsUrl   = "/v1/instruments"
-	V1GetTickersUrl       = "/v1/tickers"
-	V1GetOrderbooksUrl    = "/v1/orderbooks"
-	V1GetMarketTradesUrl  = "/v1/market/trades"
-	V1GetKlinesUrl        = "/v1/klines"
-	V1GetDeliveryInfoUrl  = "/v1/delivery_info"
-	V1GetMarketSummaryUrl = "/v1/market/summary"
-	V1GetFundingRateUrl   = "/v1/funding_rate"
+	V1GetIndexUrl              = "/v1/index"
+	V1GetInstrumentsUrl        = "/v1/instruments"
+	V1GetTickersUrl            = "/v1/tickers"
+	V1GetOrderbooksUrl         = "/v1/orderbooks"
+	V1GetMarketTradesUrl       = "/v1/market/trades"
+	V1GetKlinesUrl             = "/v1/klines"
+	V1GetDeliveryInfoUrl       = "/v1/delivery_info"
+	V1GetMarketSummaryUrl      = "/v1/market/summary"
+	V1GetFundingRateUrl        = "/v1/funding_rate"
+	V1GetFundingRateHistoryUrl = "/v1/funding_rate_history"
+	V1GetTotalVolumeUrl        = "/v1/total_volumes"
 
 	// Account
 	V1GetAccountsUrl        = "/v1/accounts"

@@ -9,8 +9,8 @@ import (
 )
 
 func GetIndexExample() {
-	systemClient := new(restclient.MarketClient).Init(config.User1Host)
-	resp, err := systemClient.GetIndex("BTC")
+	marketClient := new(restclient.MarketClient).Init(config.User1Host)
+	resp, err := marketClient.GetIndex("BTC")
 	if err != nil {
 		applogger.Error("Get index error: %s", err)
 	} else {
@@ -24,14 +24,14 @@ func GetIndexExample() {
 }
 
 func GetInstrumentsExample() {
-	systemClient := new(restclient.MarketClient).Init(config.User1Host)
+	marketClient := new(restclient.MarketClient).Init(config.User1Host)
 
 	paramMap := make(map[string]interface{})
 	paramMap["currency"] = "BTC"
 	paramMap["category"] = "future"
 	paramMap["active"] = true
 
-	resp, err := systemClient.GetInstruments(paramMap)
+	resp, err := marketClient.GetInstruments(paramMap)
 	if err != nil {
 		applogger.Error("Get instruments error: %s", err)
 	} else {
@@ -45,8 +45,8 @@ func GetInstrumentsExample() {
 }
 
 func GetTickerExample() {
-	systemClient := new(restclient.MarketClient).Init(config.User1Host)
-	resp, err := systemClient.GetTicker("BTC-10SEP20-10125-C")
+	marketClient := new(restclient.MarketClient).Init(config.User1Host)
+	resp, err := marketClient.GetTicker("BTC-10SEP20-10125-C")
 	if err != nil {
 		applogger.Error("Get ticker error: %s", err)
 	} else {
@@ -60,13 +60,13 @@ func GetTickerExample() {
 }
 
 func GetOrderBookExample() {
-	systemClient := new(restclient.MarketClient).Init(config.User1Host)
+	marketClient := new(restclient.MarketClient).Init(config.User1Host)
 
 	paramMap := make(map[string]interface{})
 	paramMap["instrument_id"] = "BTC-PERPETUAL"
 	paramMap["level"] = 5
 
-	resp, err := systemClient.GetOrderBook(paramMap)
+	resp, err := marketClient.GetOrderBook(paramMap)
 	if err != nil {
 		applogger.Error("Get order book error: %s", err)
 	} else {
@@ -80,7 +80,7 @@ func GetOrderBookExample() {
 }
 
 func GetMarketTradeExample() {
-	systemClient := new(restclient.MarketClient).Init(config.User1Host)
+	marketClient := new(restclient.MarketClient).Init(config.User1Host)
 
 	paramMap := make(map[string]interface{})
 	paramMap["currency"] = "BTC"
@@ -90,7 +90,7 @@ func GetMarketTradeExample() {
 	paramMap["offset"] = 1
 	paramMap["limit"] = 5
 
-	resp, err := systemClient.GetMarketTrade(paramMap)
+	resp, err := marketClient.GetMarketTrade(paramMap)
 	if err != nil {
 		applogger.Error("Get market trade error: %s", err)
 	} else {
@@ -104,7 +104,7 @@ func GetMarketTradeExample() {
 }
 
 func GetKlinesExample() {
-	systemClient := new(restclient.MarketClient).Init(config.User1Host)
+	marketClient := new(restclient.MarketClient).Init(config.User1Host)
 
 	paramMap := make(map[string]interface{})
 	paramMap["instrument_id"] = "BTC-PERPETUAL"
@@ -112,7 +112,7 @@ func GetKlinesExample() {
 	paramMap["end_time"] = 1599654430564
 	paramMap["timeframe_min"] = "1"
 
-	resp, err := systemClient.GetKlines(paramMap)
+	resp, err := marketClient.GetKlines(paramMap)
 	if err != nil {
 		applogger.Error("Get K-line error: %s", err)
 	} else {
@@ -126,14 +126,14 @@ func GetKlinesExample() {
 }
 
 func GetDeliveryInfoExample() {
-	systemClient := new(restclient.MarketClient).Init(config.User1Host)
+	marketClient := new(restclient.MarketClient).Init(config.User1Host)
 
 	paramMap := make(map[string]interface{})
 	paramMap["currency"] = "BTC"
 	paramMap["offset"] = 1
 	paramMap["limit"] = 5
 
-	resp, err := systemClient.GetDeliveryInfo(paramMap)
+	resp, err := marketClient.GetDeliveryInfo(paramMap)
 	if err != nil {
 		applogger.Error("Get daily delivery price info error: %s", err)
 	} else {
@@ -147,13 +147,13 @@ func GetDeliveryInfoExample() {
 }
 
 func GetMarketSummaryExample() {
-	systemClient := new(restclient.MarketClient).Init(config.User1Host)
+	marketClient := new(restclient.MarketClient).Init(config.User1Host)
 	paramMap := make(map[string]interface{})
 	paramMap["currency"] = "BTC"
 	paramMap["category"] = "future"
 	paramMap["instrument_id"] = "BTC-PERPETUAL"
 
-	resp, err := systemClient.GetMarketSummary(paramMap)
+	resp, err := marketClient.GetMarketSummary(paramMap)
 	if err != nil {
 		applogger.Error("Get market summary error: %s", err)
 	} else {
@@ -167,8 +167,8 @@ func GetMarketSummaryExample() {
 }
 
 func GetFundingRateExample() {
-	systemClient := new(restclient.MarketClient).Init(config.User1Host)
-	resp, err := systemClient.GetFundingRate("BTC-PERPETUAL")
+	marketClient := new(restclient.MarketClient).Init(config.User1Host)
+	resp, err := marketClient.GetFundingRate("BTC-PERPETUAL")
 	if err != nil {
 		applogger.Error("Get funding rate error: %s", err)
 	} else {
@@ -177,6 +177,44 @@ func GetFundingRateExample() {
 			applogger.Error("Marshal response error: %s", jsonErr)
 		} else {
 			applogger.Info("Get funding rate: \n%s", pretty.Pretty([]byte(respJson)))
+		}
+	}
+}
+
+func GetFundingRateHistoryExample() {
+	marketClient := new(restclient.MarketClient).Init(config.User1Host)
+	paramMap := map[string]interface{}{
+		"instrument_id": "BTC-PERPETUAL",
+		"start_time":    1610784000000,
+		"end_time":      1610870400000,
+		"history_type":  "8H",
+	}
+
+	resp, err := marketClient.GetFundingRateHistory(paramMap)
+	if err != nil {
+		applogger.Error("Get funding rate history error: %s", err)
+	} else {
+		respJson, jsonErr := model.ToJson(resp.Data)
+		if jsonErr != nil {
+			applogger.Error("Marshal response error: %s", jsonErr)
+		} else {
+			applogger.Info("Get funding rate history: \n%s", pretty.Pretty([]byte(respJson)))
+		}
+	}
+}
+
+func GetTotalVolumeExample() {
+	marketClient := new(restclient.MarketClient).Init(config.User1Host)
+
+	resp, err := marketClient.GetTotalVolume()
+	if err != nil {
+		applogger.Error("Get total volume error: %s", err)
+	} else {
+		respJson, jsonErr := model.ToJson(resp.Data)
+		if jsonErr != nil {
+			applogger.Error("Marshal response error: %s", jsonErr)
+		} else {
+			applogger.Info("Get total volume: \n%s", pretty.Pretty([]byte(respJson)))
 		}
 	}
 }

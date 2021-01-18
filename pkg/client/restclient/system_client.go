@@ -3,6 +3,7 @@ package restclient
 import (
 	"encoding/json"
 	"errors"
+
 	"github.com/bitcom-exchange/bitcom-go-api/constant"
 	"github.com/bitcom-exchange/bitcom-go-api/internal"
 	"github.com/bitcom-exchange/bitcom-go-api/internal/requestbuilder"
@@ -44,6 +45,27 @@ func (c *SystemClient) GetServerTimestamp() (*system.GetSystemTimestampResponse,
 	url := c.publicUrlBuilder.Build(constant.V1GetServerTimestampUrl, nil)
 	getResp, getErr := internal.HttpGet(url, "")
 	result := &system.GetSystemTimestampResponse{}
+
+	if getErr != nil {
+		return nil, getErr
+	}
+
+	jsonErr := json.Unmarshal([]byte(getResp), result)
+	if jsonErr != nil {
+		return nil, jsonErr
+	}
+
+	if result.Code == 0 {
+		return result, nil
+	}
+
+	return nil, errors.New(getResp)
+}
+
+func (c *SystemClient) GetCancelOnlyStatus() (*system.GetCancelOnlyStatusResponse, error) {
+	url := c.publicUrlBuilder.Build(constant.V1GetCancelOnlyStatusUrl, nil)
+	getResp, getErr := internal.HttpGet(url, "")
+	result := &system.GetCancelOnlyStatusResponse{}
 
 	if getErr != nil {
 		return nil, getErr

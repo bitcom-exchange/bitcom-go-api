@@ -2,9 +2,9 @@ package config
 
 // Wafei Alpha
 var User1Host = "https://alphaapi.bitexch.dev"
-var User1Uid = "467556"
-var User1AccessKey = "ak-5893b237-b65f-4882-a5f4-5b9305d4daf9"
-var User1SecretKey = "dVy3S7MEbV1e9MdYGRzLqGB8vRoAGTExbIlnMS03YZ48RdhaJukrasTMkGRyKTKM"
+var User1Uid = "475183"
+var User1AccessKey = "ak-3d4dc159-8313-4726-860e-60355ccf1d24"
+var User1SecretKey = "A2I2HuUKqx7VnxQVvJhvowvmgQ3GgunDtdsHHyEjZoQXn14zmf8hB8MZzjlgGOFg"
 
 // Eric Alpha
 var User2Host = "https://alphaapi.bitexch.dev"
