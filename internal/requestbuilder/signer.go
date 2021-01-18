@@ -9,9 +9,11 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 type Signer struct {
+	sync.Mutex
 	hash hash.Hash
 }
 
@@ -101,6 +103,9 @@ func (s *Signer) buildParamToSign(paramMap map[string]interface{}) string {
 }
 
 func (s *Signer) sign(strToSign string) string {
+	s.Lock()
+	defer s.Unlock()
+
 	s.hash.Reset()
 	s.hash.Write([]byte(strToSign))
 	sha := hex.EncodeToString(s.hash.Sum(nil))

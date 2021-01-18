@@ -4,6 +4,7 @@ const (
 	// Currency
 	BTC = "BTC"
 	ETH = "ETH"
+	BCH = "BCH"
 
 	// Instrument
 	BTCPerpetual = "BTC-PERPETUAL"
