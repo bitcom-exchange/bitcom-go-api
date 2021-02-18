@@ -2,6 +2,7 @@ package examples
 
 import (
 	"fmt"
+
 	"github.com/bitcom-exchange/bitcom-go-api/config"
 	"github.com/bitcom-exchange/bitcom-go-api/logging/applogger"
 	"github.com/bitcom-exchange/bitcom-go-api/pkg/client/restclient"
@@ -129,11 +130,9 @@ func PublicSubscribeExample() {
 	client := new(wsclient.PublicWebsocketClient).Init(config.WsHost)
 
 	paramMap := map[string]interface{}{
-		"type":     "subscribe",
-		"channels": []string{"mark_price"},
-		//"currencies": []string{"BTC"},
-		//"categories": []string{"option"},
-		"instruments": []string{"BTC-PERPETUAL", "BTC-15SEP20-10625-C"},
+		"type":        "subscribe",
+		"channels":    []string{"ticker"},
+		"instruments": []string{},
 		"interval":    "100ms",
 	}
 
@@ -149,8 +148,13 @@ func PublicSubscribeExample() {
 	fmt.Println("Press ENTER to unsubscribe and stop...")
 	fmt.Scanln()
 
-	paramMap["type"] = "unsubscribe"
-	client.UnSubscribe(paramMap)
+	paramMap["instruments"] = []string{"BTC-PERPETUAL"}
+	client.Subscribe(paramMap)
+	fmt.Scanln()
+
+	paramMap["instruments"] = []string{"BTC-PERPETUAL", "ETH-PERPETUAL"}
+	client.Subscribe(paramMap)
+	fmt.Scanln()
 
 	client.Close()
 	applogger.Info("Client closed")
@@ -181,9 +185,6 @@ func PrivateSubscribeExample() {
 
 	fmt.Println("Press ENTER to unsubscribe and stop...")
 	fmt.Scanln()
-
-	paramMap["type"] = "unsubscribe"
-	client.UnSubscribe(paramMap)
 
 	client.Close()
 	applogger.Info("Client closed")

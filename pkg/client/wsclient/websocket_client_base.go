@@ -3,12 +3,13 @@ package wsclient
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/bitcom-exchange/bitcom-go-api/logging/applogger"
-	"github.com/bitcom-exchange/bitcom-go-api/pkg/model/ws"
-	"github.com/gorilla/websocket"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/bitcom-exchange/bitcom-go-api/logging/applogger"
+	"github.com/bitcom-exchange/bitcom-go-api/pkg/model/ws"
+	"github.com/gorilla/websocket"
 )
 
 const (
@@ -52,23 +53,23 @@ type WebSocketClientBase struct {
 	sendMutex         *sync.Mutex
 }
 
-func (p *WebSocketClientBase) Init(host, token string) *WebSocketClientBase {
-	p.host = host
-	p.token = token
-	p.stopReadChannel = make(chan int, 1)
-	p.stopTickerChannel = make(chan int, 1)
-	p.sendMutex = &sync.Mutex{}
+func (wsc *WebSocketClientBase) Init(host, token string) *WebSocketClientBase {
+	wsc.host = host
+	wsc.token = token
+	wsc.stopReadChannel = make(chan int)
+	wsc.stopTickerChannel = make(chan int)
+	wsc.sendMutex = &sync.Mutex{}
 
-	return p
+	return wsc
 }
 
-func (p *WebSocketClientBase) BuildRequestBody(paramMap map[string]interface{}) (string, error) {
+func (wsc *WebSocketClientBase) BuildRequestBody(paramMap map[string]interface{}) (string, error) {
 	if paramMap == nil {
 		paramMap = make(map[string]interface{})
 	}
 
-	if p.token != "" {
-		paramMap["token"] = p.token
+	if wsc.token != "" {
+		paramMap["token"] = wsc.token
 	}
 
 	var jsonBody string
@@ -85,72 +86,75 @@ func (p *WebSocketClientBase) BuildRequestBody(paramMap map[string]interface{}) 
 	return jsonBody, nil
 }
 
-func (p *WebSocketClientBase) SetHandler(connHandler ConnectedHandler, repHandler ResponseHandler) {
-	p.connectedHandler = connHandler
-	p.responseHandler = repHandler
+func (wsc *WebSocketClientBase) SetHandler(connHandler ConnectedHandler, repHandler ResponseHandler) {
+	wsc.connectedHandler = connHandler
+	wsc.responseHandler = repHandler
 }
 
-func (p *WebSocketClientBase) Connect(autoConnect bool) {
-	p.connectWebSocket()
+func (wsc *WebSocketClientBase) Connect(autoConnect bool) {
+	wsc.connectWebSocket()
 
 	if autoConnect {
-		p.startTicker()
+		wsc.startTicker()
 	}
 }
 
-func (p *WebSocketClientBase) Send(data string) {
-	if p.conn == nil {
+func (wsc *WebSocketClientBase) Send(data string) {
+	if wsc.conn == nil {
 		applogger.Error("WebSocket sent error: no connection available")
 		return
 	}
 
-	p.sendMutex.Lock()
-	err := p.conn.WriteMessage(websocket.TextMessage, []byte(data))
-	p.sendMutex.Unlock()
+	wsc.sendMutex.Lock()
+	err := wsc.conn.WriteMessage(websocket.TextMessage, []byte(data))
+	wsc.sendMutex.Unlock()
 
 	if err != nil {
 		applogger.Error("WebSocket sent error: data=%s, error=%s", data, err)
 	}
 }
 
-func (p *WebSocketClientBase) Close() {
-	//p.stopTicker()
-	p.stopReadLoop()
-	p.disconnectWebSocket()
+func (wsc *WebSocketClientBase) Close() {
+	err := wsc.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+	if err != nil {
+		applogger.Error("Write close:", err)
+	}
+	wsc.stopReadLoop()
+	wsc.disconnectWebSocket()
 }
 
-func (p *WebSocketClientBase) connectWebSocket() {
+func (wsc *WebSocketClientBase) connectWebSocket() {
 	var err error
-	url := fmt.Sprintf("%s%s", p.host, path)
+	url := fmt.Sprintf("%s%s", wsc.host, path)
 	applogger.Debug("WebSocket connecting...")
-	p.conn, _, err = websocket.DefaultDialer.Dial(url, nil)
+	wsc.conn, _, err = websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		applogger.Error("WebSocket connected error: %s", err)
 		return
 	}
 	applogger.Info("WebSocket connected")
 
-	p.conn.SetPingHandler(nil)
-	p.conn.SetReadLimit(maxMessageSize)
+	wsc.conn.SetPingHandler(nil)
+	wsc.conn.SetReadLimit(maxMessageSize)
 
-	if err := p.conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+	if err := wsc.conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
 		applogger.Error("WebSocket connected error: %s", err)
 		return
 	}
 
-	p.conn.SetPongHandler(func(string) error {
-		return p.conn.SetReadDeadline(time.Now().Add(pongWait))
+	wsc.conn.SetPongHandler(func(string) error {
+		return wsc.conn.SetReadDeadline(time.Now().Add(pongWait))
 	})
 
-	p.startReadLoop()
+	wsc.startReadLoop()
 
-	if p.connectedHandler != nil {
-		p.connectedHandler()
+	if wsc.connectedHandler != nil {
+		wsc.connectedHandler()
 	}
 }
 
-func (p *WebSocketClientBase) disconnectWebSocket() {
-	if p.conn == nil {
+func (wsc *WebSocketClientBase) disconnectWebSocket() {
+	if wsc.conn == nil {
 		return
 	}
 
@@ -158,7 +162,7 @@ func (p *WebSocketClientBase) disconnectWebSocket() {
 
 	time.Sleep(time.Second)
 
-	err := p.conn.Close()
+	err := wsc.conn.Close()
 	if err != nil {
 		applogger.Error("WebSocket disconnect error: %s", err)
 		return
@@ -167,119 +171,107 @@ func (p *WebSocketClientBase) disconnectWebSocket() {
 	applogger.Info("WebSocket disconnected")
 }
 
-func (p *WebSocketClientBase) startTicker() {
-	p.ticker = time.NewTicker(TimerIntervalSecond * time.Second)
-	p.lastReceivedTime = time.Now()
+func (wsc *WebSocketClientBase) startTicker() {
+	wsc.ticker = time.NewTicker(TimerIntervalSecond * time.Second)
+	wsc.lastReceivedTime = time.Now()
 
-	go p.tickerLoop()
+	go wsc.tickerLoop()
 }
 
-func (p *WebSocketClientBase) stopTicker() {
-	p.ticker.Stop()
-	p.stopTickerChannel <- 1
-}
-
-func (p *WebSocketClientBase) tickerLoop() {
+func (wsc *WebSocketClientBase) tickerLoop() {
 	applogger.Debug("tickerLoop started")
 	for {
 		select {
-		// Receive data from stopChannel
-		case <-p.stopTickerChannel:
-			applogger.Debug("tickerLoop stopped")
-			return
-
 		// Receive tick from tickChannel
-		case <-p.ticker.C:
-			elapsedSecond := time.Now().Sub(p.lastReceivedTime).Seconds()
+		case <-wsc.ticker.C:
+			elapsedSecond := time.Now().Sub(wsc.lastReceivedTime).Seconds()
 			applogger.Debug("WebSocket received data %f sec ago", elapsedSecond)
 
 			if elapsedSecond > ReconnectWaitSecond {
 				applogger.Info("WebSocket reconnect...")
-				p.disconnectWebSocket()
-				p.connectWebSocket()
+				wsc.disconnectWebSocket()
+				wsc.connectWebSocket()
 			}
 		}
 	}
 }
 
-func (p *WebSocketClientBase) startReadLoop() {
-	go p.readLoop()
+func (wsc *WebSocketClientBase) startReadLoop() {
+	go wsc.readLoop()
 }
 
-func (p *WebSocketClientBase) stopReadLoop() {
-	p.stopReadChannel <- 1
+func (wsc *WebSocketClientBase) stopReadLoop() {
+	wsc.stopReadChannel <- 1
 }
 
-func (p *WebSocketClientBase) readLoop() {
+func (wsc *WebSocketClientBase) readLoop() {
 	applogger.Debug("readLoop started")
 	for {
 		select {
-		case <-p.stopReadChannel:
+		case <-wsc.stopReadChannel:
 			applogger.Debug("readLoop stopped")
 			return
 
 		default:
-			if p.conn == nil {
+			if wsc.conn == nil {
 				applogger.Error("Read error: no connection available")
 				time.Sleep(TimerIntervalSecond * time.Second)
 				continue
 			}
 
 			// TODO: If no message receives, the function will be blocked here
-			msgType, buf, err := p.conn.ReadMessage()
+			msgType, buf, err := wsc.conn.ReadMessage()
 			if err != nil {
 				applogger.Error("Read error: %s", err)
 				time.Sleep(TimerIntervalSecond * time.Second)
 				continue
 			}
-			p.lastReceivedTime = time.Now()
+			wsc.lastReceivedTime = time.Now()
 
 			switch msgType {
-			case websocket.PingMessage:
-				applogger.Info("Read ping message: %s", string(buf))
 			case websocket.TextMessage:
 				message := string(buf)
-				p.handleTextMessage(message)
+				wsc.handleTextMessage(message)
 			}
 
 		}
 	}
 }
 
-func (p *WebSocketClientBase) handleTextMessage(message string) {
+func (wsc *WebSocketClientBase) handleTextMessage(message string) {
 	switch {
 	case strings.Contains(message, "\"channel\":\"subscription\""):
-		p.handleSubscriptionMessage(message)
+		wsc.handleSubscriptionMessage(message)
 	case strings.Contains(message, "\"channel\":\"depth\"") && !strings.Contains(message, "depth1"):
-		p.handleDepthMessage(message)
+		wsc.handleDepthMessage(message)
 	case strings.Contains(message, "\"channel\":\"order_book\""):
-		p.handleOrderBookMessage(message)
+		wsc.handleOrderBookMessage(message)
 	case strings.Contains(message, "\"channel\":\"depth1\""):
-		p.handleDepth1Message(message)
+		wsc.handleDepth1Message(message)
 	case strings.Contains(message, "\"channel\":\"ticker\""):
-		p.handleTickerMessage(message)
+		wsc.handleTickerMessage(message)
 	case strings.Contains(message, "\"channel\":\"ticker\""):
-		p.handleKlineMessage(message)
+		wsc.handleKlineMessage(message)
 	case strings.Contains(message, "\"channel\":\"trade\""):
-		p.handleTradeMessage(message)
+		wsc.handleTradeMessage(message)
 	case strings.Contains(message, "\"channel\":\"market_trade\""):
-		p.handleMarketTradeMessage(message)
+		wsc.handleMarketTradeMessage(message)
 	case strings.Contains(message, "\"channel\":\"index_price\""):
-		p.handleIndexPriceMessage(message)
+		wsc.handleIndexPriceMessage(message)
 	case strings.Contains(message, "\"channel\":\"mark_price\""):
-		p.handleMarkPriceMessage(message)
+		wsc.handleMarkPriceMessage(message)
 	case strings.Contains(message, "\"channel\":\"account\""):
-		p.handleAccountMessage(message)
+		wsc.handleAccountMessage(message)
 	case strings.Contains(message, "\"channel\":\"position\""):
-		p.handlePositionMessage(message)
+		wsc.handlePositionMessage(message)
 	case strings.Contains(message, "\"channel\":\"order\"") && !strings.Contains(message, "order_book"):
-		p.handleOrderMessage(message)
+		wsc.handleOrderMessage(message)
 	case strings.Contains(message, "\"channel\":\"user_trade\""):
-		p.handleUserTradeMessage(message)
+		wsc.handleUserTradeMessage(message)
 	}
 }
 
-func (p *WebSocketClientBase) handleSubscriptionMessage(message string) {
+func (wsc *WebSocketClientBase) handleSubscriptionMessage(message string) {
 	successResponse := ws.SubscriptionSuccessResponse{}
 	err := json.Unmarshal([]byte(message), &successResponse)
 	if err != nil {
@@ -293,27 +285,27 @@ func (p *WebSocketClientBase) handleSubscriptionMessage(message string) {
 		if err != nil {
 			applogger.Error("Handle subscription message error: %s", err)
 		}
-		if p.responseHandler != nil {
-			p.responseHandler(failResponse)
+		if wsc.responseHandler != nil {
+			wsc.responseHandler(failResponse)
 		}
 		return
 	}
 
-	if p.responseHandler != nil {
-		p.responseHandler(successResponse)
+	if wsc.responseHandler != nil {
+		wsc.responseHandler(successResponse)
 	}
 
 }
 
-func (p *WebSocketClientBase) handleDepthMessage(message string) {
+func (wsc *WebSocketClientBase) handleDepthMessage(message string) {
 	if strings.Contains(message, "snapshot") {
 		snapshotDepthResponse := ws.DepthSnapshotResponse{}
 		err := json.Unmarshal([]byte(message), &snapshotDepthResponse)
 		if err != nil {
 			applogger.Error("Handle snapshot depth message error: %s", err)
 		}
-		if p.responseHandler != nil {
-			p.responseHandler(snapshotDepthResponse)
+		if wsc.responseHandler != nil {
+			wsc.responseHandler(snapshotDepthResponse)
 		}
 	} else if strings.Contains(message, "update") {
 		updateDepthResponse := ws.DepthUpdateResponse{}
@@ -321,142 +313,142 @@ func (p *WebSocketClientBase) handleDepthMessage(message string) {
 		if err != nil {
 			applogger.Error("Handle update depth message error: %s", err)
 		}
-		if p.responseHandler != nil {
-			p.responseHandler(updateDepthResponse)
+		if wsc.responseHandler != nil {
+			wsc.responseHandler(updateDepthResponse)
 		}
 	}
 
 }
 
-func (p *WebSocketClientBase) handleOrderBookMessage(message string) {
+func (wsc *WebSocketClientBase) handleOrderBookMessage(message string) {
 	orderBookResponse := ws.OrderBookResponse{}
 	err := json.Unmarshal([]byte(message), &orderBookResponse)
 	if err != nil {
 		applogger.Error("Handle orderbook message error: %s", err)
 	}
-	if p.responseHandler != nil {
-		p.responseHandler(orderBookResponse)
+	if wsc.responseHandler != nil {
+		wsc.responseHandler(orderBookResponse)
 	}
 
 }
 
-func (p *WebSocketClientBase) handleDepth1Message(message string) {
+func (wsc *WebSocketClientBase) handleDepth1Message(message string) {
 	depth1Response := ws.Depth1Response{}
 	err := json.Unmarshal([]byte(message), &depth1Response)
 	if err != nil {
 		applogger.Error("Handle depth1 message error: %s", err)
 	}
-	if p.responseHandler != nil {
-		p.responseHandler(depth1Response)
+	if wsc.responseHandler != nil {
+		wsc.responseHandler(depth1Response)
 	}
 }
 
-func (p *WebSocketClientBase) handleTickerMessage(message string) {
+func (wsc *WebSocketClientBase) handleTickerMessage(message string) {
 	tickerResponse := ws.TickerResponse{}
 	err := json.Unmarshal([]byte(message), &tickerResponse)
 	if err != nil {
 		applogger.Error("Handle ticker message error: %s", err)
 	}
-	if p.responseHandler != nil {
-		p.responseHandler(tickerResponse)
+	if wsc.responseHandler != nil {
+		wsc.responseHandler(tickerResponse)
 	}
 }
 
-func (p *WebSocketClientBase) handleKlineMessage(message string) {
+func (wsc *WebSocketClientBase) handleKlineMessage(message string) {
 	klineResponse := ws.KlineResponse{}
 	err := json.Unmarshal([]byte(message), &klineResponse)
 	if err != nil {
 		applogger.Error("Handle kline message error: %s", err)
 	}
-	if p.responseHandler != nil {
-		p.responseHandler(klineResponse)
+	if wsc.responseHandler != nil {
+		wsc.responseHandler(klineResponse)
 	}
 }
 
-func (p *WebSocketClientBase) handleTradeMessage(message string) {
+func (wsc *WebSocketClientBase) handleTradeMessage(message string) {
 	tradeResponse := ws.TradeResponse{}
 	err := json.Unmarshal([]byte(message), &tradeResponse)
 	if err != nil {
 		applogger.Error("Handle trade message error: %s", err)
 	}
-	if p.responseHandler != nil {
-		p.responseHandler(tradeResponse)
+	if wsc.responseHandler != nil {
+		wsc.responseHandler(tradeResponse)
 	}
 }
 
-func (p *WebSocketClientBase) handleMarketTradeMessage(message string) {
+func (wsc *WebSocketClientBase) handleMarketTradeMessage(message string) {
 	marketTradeResponse := ws.MarketTradeResponse{}
 	err := json.Unmarshal([]byte(message), &marketTradeResponse)
 	if err != nil {
 		applogger.Error("Handle market trade message error: %s", err)
 	}
-	if p.responseHandler != nil {
-		p.responseHandler(marketTradeResponse)
+	if wsc.responseHandler != nil {
+		wsc.responseHandler(marketTradeResponse)
 	}
 }
 
-func (p *WebSocketClientBase) handleIndexPriceMessage(message string) {
+func (wsc *WebSocketClientBase) handleIndexPriceMessage(message string) {
 	indexPriceResponse := ws.IndexPriceResponse{}
 	err := json.Unmarshal([]byte(message), &indexPriceResponse)
 	if err != nil {
 		applogger.Error("Handle index price message error: %s", err)
 	}
-	if p.responseHandler != nil {
-		p.responseHandler(indexPriceResponse)
+	if wsc.responseHandler != nil {
+		wsc.responseHandler(indexPriceResponse)
 	}
 }
 
-func (p *WebSocketClientBase) handleMarkPriceMessage(message string) {
+func (wsc *WebSocketClientBase) handleMarkPriceMessage(message string) {
 	markPriceResponse := ws.MarkPriceResponse{}
 	err := json.Unmarshal([]byte(message), &markPriceResponse)
 	if err != nil {
 		applogger.Error("Handle mark price message error: %s", err)
 	}
-	if p.responseHandler != nil {
-		p.responseHandler(markPriceResponse)
+	if wsc.responseHandler != nil {
+		wsc.responseHandler(markPriceResponse)
 	}
 }
 
-func (p *WebSocketClientBase) handleAccountMessage(message string) {
+func (wsc *WebSocketClientBase) handleAccountMessage(message string) {
 	accountResponse := ws.AccountResponse{}
 	err := json.Unmarshal([]byte(message), &accountResponse)
 	if err != nil {
 		applogger.Error("Handle account message error: %s", err)
 	}
-	if p.responseHandler != nil {
-		p.responseHandler(accountResponse)
+	if wsc.responseHandler != nil {
+		wsc.responseHandler(accountResponse)
 	}
 }
 
-func (p *WebSocketClientBase) handlePositionMessage(message string) {
+func (wsc *WebSocketClientBase) handlePositionMessage(message string) {
 	positionResponse := ws.PositionResponse{}
 	err := json.Unmarshal([]byte(message), &positionResponse)
 	if err != nil {
 		applogger.Error("Handle position message error: %s", err)
 	}
-	if p.responseHandler != nil {
-		p.responseHandler(positionResponse)
+	if wsc.responseHandler != nil {
+		wsc.responseHandler(positionResponse)
 	}
 }
 
-func (p *WebSocketClientBase) handleOrderMessage(message string) {
+func (wsc *WebSocketClientBase) handleOrderMessage(message string) {
 	orderResponse := ws.OrderResponse{}
 	err := json.Unmarshal([]byte(message), &orderResponse)
 	if err != nil {
 		applogger.Error("Handle order message error: %s", err)
 	}
-	if p.responseHandler != nil {
-		p.responseHandler(orderResponse)
+	if wsc.responseHandler != nil {
+		wsc.responseHandler(orderResponse)
 	}
 }
 
-func (p *WebSocketClientBase) handleUserTradeMessage(message string) {
+func (wsc *WebSocketClientBase) handleUserTradeMessage(message string) {
 	userTradeResponse := ws.UserTradeResponse{}
 	err := json.Unmarshal([]byte(message), &userTradeResponse)
 	if err != nil {
 		applogger.Error("Handle user trade message error: %s", err)
 	}
-	if p.responseHandler != nil {
-		p.responseHandler(userTradeResponse)
+	if wsc.responseHandler != nil {
+		wsc.responseHandler(userTradeResponse)
 	}
 }

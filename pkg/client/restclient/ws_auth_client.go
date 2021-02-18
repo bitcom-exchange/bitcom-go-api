@@ -3,6 +3,7 @@ package restclient
 import (
 	"encoding/json"
 	"errors"
+
 	"github.com/bitcom-exchange/bitcom-go-api/constant"
 	"github.com/bitcom-exchange/bitcom-go-api/internal"
 	"github.com/bitcom-exchange/bitcom-go-api/internal/requestbuilder"

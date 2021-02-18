@@ -17,7 +17,7 @@ func NewParadigmBlockOrdersExample() {
 	paramMap["bt_source"] = constant.ParadigmBlockTradeSource
 	paramMap["label"] = "uuid-0"
 	paramMap["role"] = constant.MarketMaker
-	paramMap["counterparty"] = config.User2Uid
+	//paramMap["counterparty"] = config.User2Uid
 
 	tradeMapOne := map[string]interface{}{
 		"instrument_id": "BTC-11SEP20-10250-C",
