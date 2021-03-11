@@ -14,7 +14,7 @@ import (
 
 const (
 	TimerIntervalSecond = 5
-	ReconnectWaitSecond = 60
+	ReconnectWaitSecond = 20
 
 	// Time allowed to write a message to the peer.
 	writeWait = 10 * time.Second
@@ -106,6 +106,10 @@ func (wsc *WebSocketClientBase) Send(data string) {
 	}
 
 	wsc.sendMutex.Lock()
+	if err := wsc.conn.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
+		applogger.Error("Set write dead line error")
+		return
+	}
 	err := wsc.conn.WriteMessage(websocket.TextMessage, []byte(data))
 	wsc.sendMutex.Unlock()
 
@@ -146,6 +150,12 @@ func (wsc *WebSocketClientBase) connectWebSocket() {
 		return wsc.conn.SetReadDeadline(time.Now().Add(pongWait))
 	})
 
+	wsc.conn.SetCloseHandler(func(code int, text string) error {
+		applogger.Info("Receive close message")
+		wsc.Close()
+		return nil
+	})
+
 	wsc.startReadLoop()
 
 	if wsc.connectedHandler != nil {
@@ -179,6 +189,12 @@ func (wsc *WebSocketClientBase) startTicker() {
 }
 
 func (wsc *WebSocketClientBase) tickerLoop() {
+	pingTicker := time.NewTicker(pingPeriod)
+	defer func() {
+		wsc.ticker.Stop()
+		pingTicker.Stop()
+	}()
+
 	applogger.Debug("tickerLoop started")
 	for {
 		select {
@@ -189,6 +205,16 @@ func (wsc *WebSocketClientBase) tickerLoop() {
 
 			if elapsedSecond > ReconnectWaitSecond {
 				applogger.Info("WebSocket reconnect...")
+				wsc.ticker.Stop()
+				wsc.disconnectWebSocket()
+				wsc.connectWebSocket()
+				wsc.ticker = time.NewTicker(TimerIntervalSecond * time.Second)
+			}
+
+		case <-pingTicker.C:
+			_ = wsc.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err := wsc.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				applogger.Error("Write ping message err :%s", err)
 				wsc.disconnectWebSocket()
 				wsc.connectWebSocket()
 			}
