@@ -244,13 +244,13 @@ func (wsc *WebSocketClientBase) handleTextMessage(message string) {
 		wsc.handleSubscriptionMessage(message)
 	case strings.Contains(message, "\"channel\":\"depth\"") && !strings.Contains(message, "depth1"):
 		wsc.handleDepthMessage(message)
-	case strings.Contains(message, "\"channel\":\"order_book\""):
+	case strings.Contains(message, "\"channel\":\"order_book."):
 		wsc.handleOrderBookMessage(message)
 	case strings.Contains(message, "\"channel\":\"depth1\""):
 		wsc.handleDepth1Message(message)
 	case strings.Contains(message, "\"channel\":\"ticker\""):
 		wsc.handleTickerMessage(message)
-	case strings.Contains(message, "\"channel\":\"ticker\""):
+	case strings.Contains(message, "\"channel\":\"kline."):
 		wsc.handleKlineMessage(message)
 	case strings.Contains(message, "\"channel\":\"trade\""):
 		wsc.handleTradeMessage(message)
