@@ -30,8 +30,6 @@ func GetPositionsExample() {
 	paramMap["currency"] = "BTC"
 	paramMap["category"] = "future"
 	paramMap["instrument_id"] = "BTC-PERPETUAL"
-	paramMap["offset"] = 1
-	paramMap["limit"] = 5
 
 	resp, err := accountClient.GetPositions(paramMap)
 	if err != nil {

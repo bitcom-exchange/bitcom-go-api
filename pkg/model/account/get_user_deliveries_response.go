@@ -4,7 +4,8 @@ import "github.com/bitcom-exchange/bitcom-go-api/pkg/model/base"
 
 type GetUserDeliveriesResponse struct {
 	base.RestBaseResponse
-	Data []DeliveryVo `json:"data"`
+	Paging base.OldPaging `json:"paging"`
+	Data   []DeliveryVo   `json:"data"`
 }
 
 type DeliveryVo struct {

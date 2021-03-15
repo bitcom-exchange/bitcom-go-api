@@ -4,7 +4,8 @@ import "github.com/bitcom-exchange/bitcom-go-api/pkg/model/base"
 
 type GetPositionsResponse struct {
 	base.RestBaseResponse
-	Data []PositionVo `json:"data"`
+	Paging base.OldPaging `json:"paging"`
+	Data   []PositionVo   `json:"data"`
 }
 
 type PositionVo struct {
