@@ -4,7 +4,8 @@ import "github.com/bitcom-exchange/bitcom-go-api/pkg/model/base"
 
 type GetUserSettlementsResponse struct {
 	base.RestBaseResponse
-	Data []SettlementVo `json:"data"`
+	PageInfo base.NewPaging `json:"page_info"`
+	Data     []SettlementVo `json:"data"`
 }
 
 type SettlementVo struct {

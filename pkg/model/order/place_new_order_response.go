@@ -37,4 +37,8 @@ type OrderActionVo struct {
 	ReduceOnly     bool   `json:"reduce_only"`
 	PostOnly       bool   `json:"post_only"`
 	RejectPostOnly bool   `json:"reject_post_only"`
+
+	Mmp    bool   `json:"mmp"`
+	Source string `json:"source"`
+	Hidden bool   `json:"hidden"`
 }

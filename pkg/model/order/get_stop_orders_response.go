@@ -25,4 +25,7 @@ type StopOrderVo struct {
 	Side         string `json:"side"`
 	OrderType    string `json:"order_type"`
 	TimeInForce  string `json:"time_in_force"`
+
+	Source string `json:"source"`
+	Hidden bool   `json:"hidden"`
 }

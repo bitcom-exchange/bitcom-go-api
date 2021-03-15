@@ -4,7 +4,8 @@ import "github.com/bitcom-exchange/bitcom-go-api/pkg/model/base"
 
 type GetTransactionLogsResponse struct {
 	base.RestBaseResponse
-	Data []TransactionLogVo `json:"data"`
+	PageInfo base.NewPaging     `json:"page_info"`
+	Data     []TransactionLogVo `json:"data"`
 }
 
 type TransactionLogVo struct {

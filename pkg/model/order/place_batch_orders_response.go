@@ -33,6 +33,10 @@ type BatchOrderDetailVo struct {
 	RejectPostOnly bool   `json:"reject_post_only"`
 	ErrorCode      int    `json:"error_code"`
 	ErrorMsg       string `json:"error_msg"`
+
+	Mmp    bool   `json:"mmp"`
+	Source string `json:"source"`
+	Hidden bool   `json:"hidden"`
 }
 
 type BatchOrderVo struct {

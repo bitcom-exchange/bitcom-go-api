@@ -4,7 +4,8 @@ import "github.com/bitcom-exchange/bitcom-go-api/pkg/model/base"
 
 type GetMarketTradeResponse struct {
 	base.RestBaseResponse
-	Data []MarketTradeVo `json:"data"`
+	PageInfo base.NewPaging  `json:"page_info"`
+	Data     []MarketTradeVo `json:"data"`
 }
 
 type MarketTradeVo struct {

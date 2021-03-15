@@ -4,7 +4,8 @@ import "github.com/bitcom-exchange/bitcom-go-api/pkg/model/base"
 
 type GetOrdersResponse struct {
 	base.RestBaseResponse
-	Data []OrderVo `json:"data"`
+	PageInfo base.NewPaging `json:"page_info"`
+	Data     []OrderVo      `json:"data"`
 }
 
 type OrderVo struct {
@@ -37,4 +38,8 @@ type OrderVo struct {
 	ReduceOnly     bool   `json:"reduce_only"`
 	PostOnly       bool   `json:"post_only"`
 	RejectPostOnly bool   `json:"reject_post_only"`
+
+	Mmp    bool   `json:"mmp"`
+	Source string `json:"source"`
+	Hidden bool   `json:"hidden"`
 }
