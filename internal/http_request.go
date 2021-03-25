@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -17,14 +18,18 @@ func HttpGet(url string, accessKey string) (string, error) {
 		req.Header.Add("X-Bit-Access-Key", accessKey)
 	}
 	resp, err := http.DefaultClient.Do(req)
+	defer resp.Body.Close()
+
 	if err != nil {
 		return "", err
 	}
 
-	defer resp.Body.Close()
 	result, err := ioutil.ReadAll(resp.Body)
 
-	return string(result), err
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("Http get request failed.\n response body is %v ", string(result))
+	}
+	return string(result), nil
 }
 
 func HttpPost(url string, body string, accessKey string) (string, error) {
@@ -38,13 +43,16 @@ func HttpPost(url string, body string, accessKey string) (string, error) {
 		req.Header.Add("X-Bit-Access-Key", accessKey)
 	}
 	resp, err := http.DefaultClient.Do(req)
+	defer resp.Body.Close()
 
 	if err != nil {
 		return "", err
 	}
 
-	defer resp.Body.Close()
 	result, err := ioutil.ReadAll(resp.Body)
 
-	return string(result), err
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("Http post request failed.\n response body is %v ", string(result))
+	}
+	return string(result), nil
 }
