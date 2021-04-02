@@ -46,18 +46,20 @@ type WebSocketClientBase struct {
 	conn              *websocket.Conn
 	connectedHandler  ConnectedHandler
 	responseHandler   ResponseHandler
-	stopReadChannel   chan int
-	stopTickerChannel chan int
+	stopReadChannel   chan struct{}
+	stopTickerChannel chan struct{}
 	ticker            *time.Ticker
 	lastReceivedTime  time.Time
-	sendMutex         *sync.Mutex
+
+	// for WriteMessage
+	sendMutex *sync.Mutex
 }
 
 func (wsc *WebSocketClientBase) Init(host, token string) *WebSocketClientBase {
 	wsc.host = host
 	wsc.token = token
-	wsc.stopReadChannel = make(chan int)
-	wsc.stopTickerChannel = make(chan int)
+	wsc.stopReadChannel = make(chan struct{})
+	wsc.stopTickerChannel = make(chan struct{})
 	wsc.sendMutex = &sync.Mutex{}
 
 	return wsc
@@ -105,25 +107,28 @@ func (wsc *WebSocketClientBase) Send(data string) {
 		return
 	}
 
-	wsc.sendMutex.Lock()
 	if err := wsc.conn.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
 		applogger.Error("Set write dead line error")
 		return
 	}
-	err := wsc.conn.WriteMessage(websocket.TextMessage, []byte(data))
-	wsc.sendMutex.Unlock()
 
+	wsc.sendMutex.Lock()
+	err := wsc.conn.WriteMessage(websocket.TextMessage, []byte(data))
 	if err != nil {
 		applogger.Error("WebSocket sent error: data=%s, error=%s", data, err)
 	}
+	wsc.sendMutex.Unlock()
+
 }
 
 func (wsc *WebSocketClientBase) Close() {
+	wsc.sendMutex.Lock()
 	err := wsc.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 	if err != nil {
 		applogger.Error("Write close:", err)
 	}
-	wsc.stopReadLoop()
+	wsc.sendMutex.Unlock()
+
 	wsc.disconnectWebSocket()
 }
 
@@ -169,7 +174,7 @@ func (wsc *WebSocketClientBase) disconnectWebSocket() {
 	}
 
 	applogger.Debug("WebSocket disconnecting...")
-
+	wsc.stopReadLoop()
 	time.Sleep(time.Second)
 
 	err := wsc.conn.Close()
@@ -212,6 +217,10 @@ func (wsc *WebSocketClientBase) tickerLoop() {
 			}
 
 		case <-pingTicker.C:
+			if wsc.conn == nil {
+				applogger.Error("Connection is null!")
+				continue
+			}
 			_ = wsc.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := wsc.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				applogger.Error("Write ping message err :%s", err)
@@ -227,7 +236,7 @@ func (wsc *WebSocketClientBase) startReadLoop() {
 }
 
 func (wsc *WebSocketClientBase) stopReadLoop() {
-	wsc.stopReadChannel <- 1
+	wsc.stopReadChannel <- struct{}{}
 }
 
 func (wsc *WebSocketClientBase) readLoop() {
