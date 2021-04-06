@@ -127,7 +127,7 @@ func getWsAuthToken() string {
 
 func PublicSubscribeExample() {
 
-	client := new(wsclient.PublicWebsocketClient).Init(config.WsHost)
+	client := new(wsclient.PublicWebsocketClient).Init(config.WsHost, 60)
 
 	paramMap := map[string]interface{}{
 		"type":        "subscribe",
@@ -163,7 +163,7 @@ func PublicSubscribeExample() {
 func PrivateSubscribeExample() {
 	token := getWsAuthToken()
 
-	client := new(wsclient.PrivateWebsocketClient).Init(config.WsHost, token)
+	client := new(wsclient.PrivateWebsocketClient).Init(config.WsHost, token, 60)
 
 	paramMap := map[string]interface{}{
 		"type":        "subscribe",

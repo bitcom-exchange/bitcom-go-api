@@ -14,7 +14,6 @@ import (
 
 const (
 	TimerIntervalSecond = 5
-	ReconnectWaitSecond = 20
 
 	// Time allowed to write a message to the peer.
 	writeWait = 10 * time.Second
@@ -29,8 +28,6 @@ const (
 	// Maximum message size allowed from peer.
 	maxMessageSize = 2 * 1024 * 1024
 
-	writeQueueSize = 512
-
 	path = "/"
 )
 
@@ -41,27 +38,26 @@ type MessageHandler func(message string) (interface{}, error)
 type ResponseHandler func(response interface{})
 
 type WebSocketClientBase struct {
-	host              string
-	token             string
-	conn              *websocket.Conn
-	connectedHandler  ConnectedHandler
-	responseHandler   ResponseHandler
-	stopReadChannel   chan struct{}
-	stopTickerChannel chan struct{}
-	ticker            *time.Ticker
-	lastReceivedTime  time.Time
+	host                string
+	token               string
+	conn                *websocket.Conn
+	connectedHandler    ConnectedHandler
+	responseHandler     ResponseHandler
+	stopReadChannel     chan struct{}
+	ticker              *time.Ticker
+	lastReceivedTime    time.Time
+	reconnectWaitSecond int64
 
 	// for WriteMessage
 	sendMutex *sync.Mutex
 }
 
-func (wsc *WebSocketClientBase) Init(host, token string) *WebSocketClientBase {
+func (wsc *WebSocketClientBase) Init(host, token string, reconnectWaitSecond int64) *WebSocketClientBase {
 	wsc.host = host
 	wsc.token = token
 	wsc.stopReadChannel = make(chan struct{})
-	wsc.stopTickerChannel = make(chan struct{})
+	wsc.reconnectWaitSecond = reconnectWaitSecond
 	wsc.sendMutex = &sync.Mutex{}
-
 	return wsc
 }
 
@@ -208,12 +204,15 @@ func (wsc *WebSocketClientBase) tickerLoop() {
 			elapsedSecond := time.Now().Sub(wsc.lastReceivedTime).Seconds()
 			applogger.Debug("WebSocket received data %f sec ago", elapsedSecond)
 
-			if elapsedSecond > ReconnectWaitSecond {
+			if elapsedSecond > float64(wsc.reconnectWaitSecond) {
 				applogger.Info("WebSocket reconnect...")
 				wsc.ticker.Stop()
 				wsc.disconnectWebSocket()
 				wsc.connectWebSocket()
 				wsc.ticker = time.NewTicker(TimerIntervalSecond * time.Second)
+
+				// reset lastReceivedTime after reconnection
+				wsc.lastReceivedTime = time.Now()
 			}
 
 		case <-pingTicker.C:
@@ -261,10 +260,10 @@ func (wsc *WebSocketClientBase) readLoop() {
 				time.Sleep(TimerIntervalSecond * time.Second)
 				continue
 			}
-			wsc.lastReceivedTime = time.Now()
 
 			switch msgType {
 			case websocket.TextMessage:
+				wsc.lastReceivedTime = time.Now()
 				message := string(buf)
 				wsc.handleTextMessage(message)
 			}
