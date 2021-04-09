@@ -18,11 +18,11 @@ func HttpGet(url string, accessKey string) (string, error) {
 		req.Header.Add("X-Bit-Access-Key", accessKey)
 	}
 	resp, err := http.DefaultClient.Do(req)
-	defer resp.Body.Close()
-
 	if err != nil {
 		return "", err
 	}
+
+	defer resp.Body.Close()
 
 	result, err := ioutil.ReadAll(resp.Body)
 
@@ -43,11 +43,11 @@ func HttpPost(url string, body string, accessKey string) (string, error) {
 		req.Header.Add("X-Bit-Access-Key", accessKey)
 	}
 	resp, err := http.DefaultClient.Do(req)
-	defer resp.Body.Close()
-
 	if err != nil {
 		return "", err
 	}
+
+	defer resp.Body.Close()
 
 	result, err := ioutil.ReadAll(resp.Body)
 
