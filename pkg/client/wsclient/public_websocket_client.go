@@ -9,7 +9,7 @@ type PublicWebsocketClient struct {
 }
 
 func (p *PublicWebsocketClient) Init(host string, reconnectWaitSecond int64) *PublicWebsocketClient {
-	p.WebSocketClientBase.Init(host, "", reconnectWaitSecond)
+	p.WebSocketClientBase.Init(host, nil, reconnectWaitSecond)
 	return p
 }
 
