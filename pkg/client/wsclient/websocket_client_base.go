@@ -37,9 +37,13 @@ type MessageHandler func(message string) (interface{}, error)
 
 type ResponseHandler func(response interface{})
 
+// When called, returns a new websocket token
+type TokenProducer func() string
+
 type WebSocketClientBase struct {
 	host                string
 	token               string
+	tokenProducer       TokenProducer
 	conn                *websocket.Conn
 	connectedHandler    ConnectedHandler
 	responseHandler     ResponseHandler
@@ -52,9 +56,9 @@ type WebSocketClientBase struct {
 	sendMutex *sync.Mutex
 }
 
-func (wsc *WebSocketClientBase) Init(host, token string, reconnectWaitSecond int64) *WebSocketClientBase {
+func (wsc *WebSocketClientBase) Init(host string, tokenProducer TokenProducer, reconnectWaitSecond int64) *WebSocketClientBase {
 	wsc.host = host
-	wsc.token = token
+	wsc.tokenProducer = tokenProducer
 	wsc.stopReadChannel = make(chan struct{})
 	wsc.reconnectWaitSecond = reconnectWaitSecond
 	wsc.sendMutex = &sync.Mutex{}
@@ -138,6 +142,10 @@ func (wsc *WebSocketClientBase) connectWebSocket() {
 		return
 	}
 	applogger.Info("WebSocket connected")
+
+	if wsc.tokenProducer != nil {
+		wsc.token = wsc.tokenProducer()
+	}
 
 	wsc.conn.SetPingHandler(nil)
 	wsc.conn.SetReadLimit(maxMessageSize)
