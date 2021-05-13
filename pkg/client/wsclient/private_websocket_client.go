@@ -8,8 +8,8 @@ type PrivateWebsocketClient struct {
 	WebSocketClientBase
 }
 
-func (p *PrivateWebsocketClient) Init(host, token string, reconnectWaitSecond int64) *PrivateWebsocketClient {
-	p.WebSocketClientBase.Init(host, token, reconnectWaitSecond)
+func (p *PrivateWebsocketClient) Init(host string, tokenProducer TokenProducer, reconnectWaitSecond int64) *PrivateWebsocketClient {
+	p.WebSocketClientBase.Init(host, tokenProducer, reconnectWaitSecond)
 	return p
 }
 
