@@ -309,3 +309,25 @@ func (c *MarketClient) GetTotalVolume() (*market.GetTotalVolumeResponse, error) 
 
 	return nil, errors.New(getResp)
 }
+
+func (c *MarketClient) GetCurrencies() (*market.GetCurrenciesResponse, error) {
+	url := c.publicUrlBuilder.Build(constant.V1GetCurrenciesUrl, nil)
+	getResp, getErr := internal.HttpGet(url, "")
+
+	result := &market.GetCurrenciesResponse{}
+
+	if getErr != nil {
+		return nil, getErr
+	}
+
+	jsonErr := json.Unmarshal([]byte(getResp), result)
+	if jsonErr != nil {
+		return nil, jsonErr
+	}
+
+	if result.Code == 0 {
+		return result, nil
+	}
+
+	return nil, errors.New(getResp)
+}

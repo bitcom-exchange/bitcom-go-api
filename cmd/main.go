@@ -18,6 +18,7 @@ func main() {
 	//examples.GetFundingRateExample()
 	//examples.GetFundingRateHistoryExample()
 	//examples.GetTotalVolumeExample()
+	//examples.GetCurrecniesExample()
 
 	// account client
 	//examples.GetAccountsExample()
