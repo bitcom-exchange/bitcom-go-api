@@ -132,7 +132,7 @@ func PublicSubscribeExample() {
 	paramMap := map[string]interface{}{
 		"type":        "subscribe",
 		"channels":    []string{"ticker"},
-		"instruments": []string{},
+		"instruments": []string{"BTC-PERPETUAL"},
 		"interval":    "100ms",
 	}
 
