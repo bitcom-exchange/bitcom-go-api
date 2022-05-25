@@ -18,6 +18,7 @@ const (
 	V1GetFundingRateUrl        = "/v1/funding_rate"
 	V1GetFundingRateHistoryUrl = "/v1/funding_rate_history"
 	V1GetTotalVolumeUrl        = "/v1/total_volumes"
+	V1GetCurrenciesUrl         = "/v1/currencies"
 
 	// Account
 	V1GetAccountsUrl        = "/v1/accounts"

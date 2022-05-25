@@ -218,3 +218,19 @@ func GetTotalVolumeExample() {
 		}
 	}
 }
+
+func GetCurrecniesExample() {
+	marketClient := new(restclient.MarketClient).Init(config.User1Host)
+
+	resp, err := marketClient.GetCurrencies()
+	if err != nil {
+		applogger.Error("Get currecnies error: %s", err)
+	} else {
+		respJson, jsonErr := model.ToJson(resp.Data)
+		if jsonErr != nil {
+			applogger.Error("Marshal response error: %s", jsonErr)
+		} else {
+			applogger.Info("Get currencies: \n%s", pretty.Pretty([]byte(respJson)))
+		}
+	}
+}
